@@ -11,12 +11,8 @@
   <main class="auth-layout">
     <section class="auth-intro">
       <a class="brand" href="{% url 'home' %}"><img src="{% static 'images/logo.png' %}" alt="Street Baik"></a>
-      <div>
-        <span class="eyebrow">GOOD FOOD • GOOD MOOD</span>
-        <h1>Your table at Street Baik starts here.</h1>
-        <p>Save your details for faster ordering, easy reservations and a smoother café visit.</p>
-      </div>
-      <a class="back-home" href="{% url 'home' %}">← Back to the café</a>
+      <div><span class="eyebrow">GOOD FOOD - GOOD MOOD</span><h1>Your table at Street Baik starts here.</h1><p>Save your details for faster ordering, easy reservations and a smoother cafe visit.</p></div>
+      <a class="back-home" href="{% url 'home' %}">Back to the cafe</a>
     </section>
     <section class="auth-panel">
       <span class="eyebrow">{% if mode == 'register' %}WELCOME IN{% else %}WELCOME BACK{% endif %}</span>
@@ -28,7 +24,7 @@
         {% if mode == 'register' %}<label>Name<input name="name" autocomplete="name" required placeholder="Your name"></label>{% endif %}
         <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
         <label>Password<input name="password" type="password" autocomplete="{% if mode == 'register' %}new-password{% else %}current-password{% endif %}" minlength="8" required placeholder="At least 8 characters"></label>
-        <button class="btn primary" type="submit">{% if mode == 'register' %}Create account{% else %}Log in{% endif %} →</button>
+        <button class="btn primary" type="submit">{% if mode == 'register' %}Create account{% else %}Log in{% endif %}</button>
       </form>
       <p class="auth-switch">{% if mode == 'register' %}Already have an account? <a href="{% url 'customer_login' %}">Log in</a>{% else %}New to Street Baik? <a href="{% url 'customer_register' %}">Create an account</a>{% endif %}</p>
     </section>

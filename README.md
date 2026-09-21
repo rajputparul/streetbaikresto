@@ -1,41 +1,152 @@
-# Street Baik Resto Cafe — Django Full-Stack Ordering Website
+# Street Baik Resto Cafe
 
-This is the Django conversion of the Street Baik cafe website. It includes a responsive customer site, database-backed menu/orders/reservations/reviews/messages, customer order tracking, protected staff dashboard, Django admin, 4 km delivery-location validation, and Twilio WhatsApp notification integration.
+Production-ready Django website for Street Baik Resto Cafe, with menu browsing, cart checkout, order tracking, reservations, gallery photos/videos, staff order management, and WhatsApp-based customer support.
 
-## Setup
-1. Create a virtual environment.
-2. `pip install -r requirements.txt`
-3. Copy `.env.example` to `.env` and fill WhatsApp credentials when ready.
-4. `python manage.py migrate`
-5. `python manage.py seed_menu`
-6. `python manage.py createsuperuser`
-7. `python manage.py runserver`
-8. Customer site: `http://127.0.0.1:8000/`
-9. Staff dashboard: `http://127.0.0.1:8000/staff/`
-10. Django admin: `http://127.0.0.1:8000/admin/`
+## Features
+
+- Responsive dark restaurant UI with red Street Baik accents
+- Database-backed menu items with categories, images, descriptions and prices
+- Cart with quantity increase/decrease, remove, totals and local persistence
+- Checkout for Delivery, Takeaway and Dine-in
+- Backend and frontend 10-digit phone validation
+- Delivery address collection with clear "within 4 km only" messaging
+- Unique customer order IDs such as `SBK-20260921-1001`
+- Customer order tracking by Order ID
+- Staff dashboard for orders, reservations, reviews and messages
+- Django admin for managing menu, orders and site data
+- Photo and video gallery using existing static media
+- WhatsApp support links and safe Twilio WhatsApp notification hooks
+- Production settings for env vars, HTTPS cookies and static files
+
+## Tech Stack
+
+- Python 3
+- Django 5
+- SQLite for local development
+- PostgreSQL via `DATABASE_URL` for production
+- WhiteNoise for static files
+- Gunicorn for production serving
+- HTML, CSS and vanilla JavaScript
+
+## Local Setup
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python manage.py migrate
+python manage.py seed_menu
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+Open:
+
+- Customer website: `http://127.0.0.1:8000/`
+- Staff dashboard: `http://127.0.0.1:8000/staff/`
+- Django admin: `http://127.0.0.1:8000/admin/`
+- Order tracking: `http://127.0.0.1:8000/track/`
+
+## Environment Variables
+
+Copy `.env.example` to `.env` locally. Never commit `.env`.
+
+```env
+DJANGO_SECRET_KEY=change-this
+DEBUG=1
+ALLOWED_HOSTS=127.0.0.1,localhost
+CSRF_TRUSTED_ORIGINS=
+SITE_URL=
+DATABASE_URL=
+DELIVERY_RADIUS_KM=4
+CLIENT_WHATSAPP=8129935964
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+```
 
 ## WhatsApp
-The order-created and order-status notification code is wired for Twilio WhatsApp. Real messages require a WhatsApp-enabled Twilio sender and credentials in `.env`. The app logs notification status instead of pretending a message was delivered when credentials are absent.
 
-## Production
-Set DEBUG=0, use a strong secret, configure ALLOWED_HOSTS, HTTPS, a production database, static collection, and real payment gateway credentials before accepting online payments.
+Customer support uses normal WhatsApp links configured by `CLIENT_WHATSAPP`.
 
+Automatic WhatsApp order notifications are wired for Twilio WhatsApp, but real delivery requires a WhatsApp-enabled Twilio sender plus `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_WHATSAPP_FROM`. If credentials are missing, the app logs the notification as not configured instead of pretending it was sent.
 
-## Client-ready updates
+## Delivery Radius
 
-This version is configured for **Dine-in + Takeaway only**. Delivery ordering and customer GPS/location verification have been removed from the customer checkout flow and order API.
+The site clearly communicates "Delivery available within 4 km only" and collects a delivery address. It does not perform real distance validation yet. Reliable distance validation requires a maps/geocoding provider such as Google Maps Distance Matrix or a delivery-zone workflow, with API keys stored in environment variables.
 
-### Homepage refresh
-- Removed the repeated Street Baik logo from the hero section.
-- Added a food-focused hero collage using the existing burger, fries and drink images.
-- Simplified the hero actions to **Explore Menu** and **Book a Table**.
-- Added clear Dine-in + Takeaway messaging.
+## Database
 
-### Checkout refresh
-- Order type is now **Takeaway** or **Dine-in**.
-- Removed delivery address, delivery instructions and location verification.
-- Table number is optional for Dine-in (useful when a customer is already seated).
-- Existing cart, order tracking, staff dashboard and reservations remain available.
+SQLite is acceptable for local development and very small single-instance deployments when backups are handled. For the real client deployment, PostgreSQL is recommended because orders are operational business data and should survive deploys/restarts reliably. The app automatically uses PostgreSQL when `DATABASE_URL` is set.
 
-### Location note
-The physical cafe address and Maps button remain on the Contact section because customers still need the cafe location for **Dine-in and Takeaway pickup**. Only GPS verification for delivery has been removed.
+## GitHub Preparation
+
+Before pushing, confirm `.env`, SQLite databases, venvs, caches and collected static files are ignored.
+
+```powershell
+git status --short
+git init
+git add .
+git commit -m "Initial production-ready website"
+git branch -M main
+git remote add origin YOUR_GITHUB_REPOSITORY_URL
+git push -u origin main
+```
+
+Do not push until secrets have been checked and `.env` is untracked.
+
+## Recommended Deployment: Render
+
+Render is a good fit because it supports Django, env vars, HTTPS, custom domains, build commands, static collection and managed PostgreSQL.
+
+1. Push the repository to GitHub.
+2. In Render, create a PostgreSQL database.
+3. In Render, create a new Web Service from the GitHub repo.
+4. Use:
+   - Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+   - Start command: `gunicorn streetbaik.wsgi:application`
+5. Set environment variables:
+   - `DEBUG=0`
+   - `DJANGO_SECRET_KEY=<strong-generated-secret>`
+   - `ALLOWED_HOSTS=<your-render-host>,streetbaik.com,www.streetbaik.com`
+   - `CSRF_TRUSTED_ORIGINS=https://<your-render-host>,https://streetbaik.com,https://www.streetbaik.com`
+   - `SITE_URL=https://streetbaik.com`
+   - `DATABASE_URL=<Render PostgreSQL internal database URL>`
+   - `CLIENT_WHATSAPP=8129935964`
+   - Optional Twilio WhatsApp variables
+6. Deploy.
+7. Seed the menu once from Render Shell if the database is empty:
+
+```bash
+python manage.py seed_menu
+```
+
+8. Create a Django superuser from Render Shell:
+
+```bash
+python manage.py createsuperuser
+```
+
+## Custom Domain, DNS and HTTPS
+
+- Hosting: Render runs the Django application.
+- GitHub: stores the source code and triggers deployments.
+- Domain: the public address, for example `streetbaik.com`.
+- DNS: points the domain to Render.
+- HTTPS/SSL: Render provisions certificates after DNS is connected.
+
+Typical DNS setup in your domain registrar:
+
+- `www` CNAME -> Render hostname
+- Apex/root domain (`streetbaik.com`) -> Render-provided A/ALIAS/ANAME record, depending on registrar support
+
+After DNS is verified in Render, add both `streetbaik.com` and `www.streetbaik.com` to `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`.
+
+## Future Improvements
+
+- Real distance validation with a maps API
+- PostgreSQL migration for heavier production use
+- Payment gateway integration
+- Image/video optimization pipeline
+- Automated browser tests in CI
