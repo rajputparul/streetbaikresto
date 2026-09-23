@@ -8,56 +8,927 @@
   <meta name="description" content="Street Baik Resto Cafe menu, ordering, table booking, gallery and order tracking.">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
+
 <header class="nav">
-  <a class="brand" href="#home"><img src="{% static 'images/logo.png' %}" alt="Street Baik"></a>
-  <nav><a href="#home">Home</a><a href="#about">About</a><a href="#menu">Menu</a><a href="#gallery">Gallery</a><a href="#reviews">Reviews</a><a href="#contact">Contact</a></nav>
+
+  <a class="brand" href="#home">
+    <img src="{% static 'images/logo.png' %}" alt="Street Baik">
+  </a>
+
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#menu">Menu</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
   <div class="nav-actions">
+
     {% if request.user.is_authenticated and not request.user.is_staff %}
-      <span class="welcome">Hi, {{ request.user.first_name|default:request.user.email }}</span><a class="account-link" href="{% url 'customer_logout' %}">Log out</a>
+      <span class="welcome">
+        Hi, {{ request.user.first_name|default:request.user.email }}
+      </span>
+
+      <a class="account-link" href="{% url 'customer_logout' %}">
+        Log out
+      </a>
+
     {% else %}
-      <a class="account-link" href="{% url 'customer_login' %}">Log in</a><a class="account-join" href="{% url 'customer_register' %}">Join</a>
+
+      <a class="account-link" href="{% url 'customer_login' %}">
+        Log in
+      </a>
+
+      <a class="account-join" href="{% url 'customer_register' %}">
+        Join
+      </a>
+
     {% endif %}
-    <a class="whatsapp-mini" href="{{ support_whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>
-    <button id="cartOpen" class="cart-pill">Cart <b id="cartCount">0</b></button>
+
+    <a
+      class="whatsapp-mini"
+      href="{{ support_whatsapp }}"
+      target="_blank"
+      rel="noopener"
+    >
+      WhatsApp
+    </a>
+
+    <button id="cartOpen" class="cart-pill">
+      Cart <b id="cartCount">0</b>
+    </button>
+
   </div>
+
 </header>
 
+
 <main id="home">
+
+  <!-- HERO -->
+
   <section class="hero">
+
     <div class="hero-copy">
-      <span class="eyebrow">GOOD FOOD - GOOD MOOD</span>
-      <h1>Your favourite <em>street food spot.</em></h1>
-      <p>Burgers, crispy bites, chef specials, refreshing drinks and cafe favourites, freshly prepared for good moments.</p>
-      <div class="actions"><a class="btn primary" href="#menu">Order Now</a><a class="btn ghost" href="#menu">View Menu</a><a class="btn ghost" href="{{ support_whatsapp }}" target="_blank" rel="noopener">WhatsApp Support</a></div>
-      <div class="hero-highlights"><span>Freshly prepared</span><span>Dine-in, takeaway and delivery</span><span>Delivery within {{ delivery_radius_km }} km only</span></div>
+
+      <span class="eyebrow">
+        GOOD FOOD - GOOD MOOD
+      </span>
+
+      <h1>
+        Your favourite <em>street food spot.</em>
+      </h1>
+
+      <p>
+        Burgers, crispy bites, chef specials, refreshing drinks
+        and cafe favourites, freshly prepared for good moments.
+      </p>
+
+      <div class="actions">
+
+        <a class="btn primary" href="#menu">
+          Order Now
+        </a>
+
+        <a class="btn ghost" href="#menu">
+          View Menu
+        </a>
+
+        <a
+          class="btn ghost"
+          href="{{ support_whatsapp }}"
+          target="_blank"
+          rel="noopener"
+        >
+          WhatsApp Support
+        </a>
+
+      </div>
+
+      <div class="hero-highlights">
+
+        <span>Freshly prepared</span>
+
+        <span>Dine-in & takeaway</span>
+
+        <span>Good food. Good mood.</span>
+
+      </div>
+
     </div>
-    <div class="hero-art"><div class="food-collage"><img class="food-main" src="{% static 'images/burger.jpg' %}" alt="Street Baik burger"><img class="food-small food-one" src="{% static 'images/fries.jpg' %}" alt="Crispy fries"><img class="food-small food-two" src="{% static 'images/mojito.jpg' %}" alt="Refreshing drink"><div class="collage-label"><b>STREET BAIK</b><span>RESTO CAFE</span></div></div></div>
+
+
+    <div class="hero-art">
+
+      <div class="food-collage">
+
+        <img
+          class="food-main"
+          src="{% static 'images/burger.jpg' %}"
+          alt="Street Baik burger"
+        >
+
+        <img
+          class="food-small food-one"
+          src="{% static 'images/fries.jpg' %}"
+          alt="Crispy fries"
+        >
+
+        <img
+          class="food-small food-two"
+          src="{% static 'images/mojito.jpg' %}"
+          alt="Refreshing drink"
+        >
+
+        <div class="collage-label">
+          <b>STREET BAIK</b>
+          <span>RESTO CAFE</span>
+        </div>
+
+      </div>
+
+    </div>
+
   </section>
+
+
+  <!-- MENU -->
 
   <section id="menu" class="section">
-    <div class="heading"><span class="eyebrow">CHOOSE YOUR TASTE</span><h2>Explore Our <em>Menu</em></h2><p>Pick a category, choose your dish and add it to your cart.</p></div>
-    <div class="menu-tools"><input id="search" placeholder="Search dishes..."><select id="sort"><option value="default">Sort</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option></select></div><div class="chips" id="chips"></div><div class="grid" id="menuGrid"></div>
+
+    <div class="heading">
+
+      <span class="eyebrow">
+        CHOOSE YOUR TASTE
+      </span>
+
+      <h2>
+        Explore Our <em>Menu</em>
+      </h2>
+
+      <p>
+        Pick a category, choose your dish and add it to your cart.
+      </p>
+
+    </div>
+
+
+    <div class="menu-tools">
+
+      <input
+        id="search"
+        placeholder="Search dishes..."
+      >
+
+      <select id="sort">
+
+        <option value="default">
+          Sort
+        </option>
+
+        <option value="low">
+          Price: Low to High
+        </option>
+
+        <option value="high">
+          Price: High to Low
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="chips" id="chips"></div>
+
+    <div class="grid" id="menuGrid"></div>
+
   </section>
 
-  <section id="about" class="section split"><img src="{% static 'images/about.jpg' %}" alt="Street Baik cafe"><div><span class="eyebrow">ABOUT STREET BAIK</span><h2>Food that feels like a good hangout.</h2><p>Welcome to Street Baik Resto Cafe, where delicious food meets a warm and welcoming atmosphere. Fresh burgers, chef specials, crispy snacks, beverages, coffees and shakes.</p><div class="features"><span>Fresh Ingredients</span><span>Expert Chefs</span><span>Fast Service</span><span>Cozy Ambience</span></div></div></section>
 
-  <section id="gallery" class="section"><div class="heading"><span class="eyebrow">THE STREET VIBE</span><h2>Our <em>Gallery</em></h2><p>Food, cafe moments and short videos from Street Baik.</p></div><div class="gallery">{% for image in gallery.photos %}<figure class="gallery-card"><img src="{% static 'images/'|add:image %}" alt="Street Baik gallery photo" loading="lazy"></figure>{% endfor %}{% for video in gallery.videos %}<figure class="gallery-card video-card"><video controls preload="metadata" playsinline poster="{% static 'images/photo/about.jpg' %}"><source src="{% static 'images/'|add:video %}" type="video/mp4"></video></figure>{% endfor %}</div></section>
+  <!-- ABOUT -->
 
-  <section id="booking" class="section form-section"><div class="heading"><span class="eyebrow">MAKE IT A PLAN</span><h2>Book a <em>Table</em></h2><p>Reserve your table before you arrive.</p></div><form id="bookingForm" class="form-grid"><input name="name" required placeholder="Name"><input name="phone" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit phone"><input name="email" type="email" placeholder="Email"><input name="date" type="date" required><input name="time" type="time" required><input name="guests" type="number" min="1" max="20" required placeholder="Guests"><textarea name="request" placeholder="Special request (optional)"></textarea><button class="btn primary">Request Reservation</button><p class="form-msg" id="bookingMsg"></p></form></section>
+  <section id="about" class="section split">
 
-  <section id="reviews" class="section form-section"><div class="heading"><span class="eyebrow">YOUR VOICE MATTERS</span><h2>Leave a <em>Review</em></h2></div><form id="reviewForm" class="form-grid"><input name="name" required placeholder="Your name"><select name="rating" required><option value="">Rating</option><option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option></select><textarea name="review" required placeholder="Tell us about your experience"></textarea><button class="btn primary">Submit Review</button><p class="form-msg" id="reviewMsg"></p></form></section>
+    <img
+      src="{% static 'images/about.jpg' %}"
+      alt="Street Baik cafe"
+    >
 
-  <section id="contact" class="section contact"><div><span class="eyebrow">COME SAY HI</span><h2>Find <em>Street Baik</em></h2><p>Railway Station Rd, near Aluva Junction, Periyar Nagar, Aluva, Kochi, Kerala 683101</p><p class="contact-note">Delivery available within {{ delivery_radius_km }} km only. Distance is confirmed by the cafe team after the order is placed.</p><p><a href="tel:+918129935964">8129935964</a><br><a href="mailto:streetbaikresto@gmail.com">streetbaikresto@gmail.com</a></p><div class="actions"><a class="btn primary" href="{{ support_whatsapp }}" target="_blank" rel="noopener">WhatsApp Help</a><a class="btn ghost" href="https://maps.app.goo.gl/4Z3DfaMugVHmci488" target="_blank" rel="noopener">Open Maps</a><a class="btn ghost" href="https://www.instagram.com/streetbaik" target="_blank" rel="noopener">Instagram</a></div></div><div class="social-card"><img src="{% static 'images/instagram-qr.png' %}" alt="Street Baik Instagram QR"><b>@STREETBAIK</b><small>Scan to follow us</small></div></section>
+    <div>
 
-  <section class="section contact-form"><div class="heading"><span class="eyebrow">NEED HELP?</span><h2>Talk to <em>Us</em></h2></div><form id="contactForm" class="form-grid"><input name="name" required placeholder="Your name"><input name="email" type="email" placeholder="Email"><input name="phone" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="Phone"><textarea name="message" required placeholder="How can we help?"></textarea><button class="btn primary">Send Message</button><p class="form-msg" id="contactMsg"></p></form></section>
+      <span class="eyebrow">
+        ABOUT STREET BAIK
+      </span>
+
+      <h2>
+        Food that feels like a good hangout.
+      </h2>
+
+      <p>
+        Welcome to Street Baik Resto Cafe, where delicious food
+        meets a warm and welcoming atmosphere. Fresh burgers,
+        chef specials, crispy snacks, beverages, coffees and shakes.
+      </p>
+
+      <div class="features">
+
+        <span>Fresh Ingredients</span>
+        <span>Expert Chefs</span>
+        <span>Fast Service</span>
+        <span>Cozy Ambience</span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- GALLERY -->
+
+  <section id="gallery" class="section">
+
+    <div class="heading">
+
+      <span class="eyebrow">
+        THE STREET VIBE
+      </span>
+
+      <h2>
+        Our <em>Gallery</em>
+      </h2>
+
+      <p>
+        Food, cafe moments and short videos from Street Baik.
+      </p>
+
+    </div>
+
+
+    <div class="gallery">
+
+      {% for image in gallery.photos %}
+
+      <figure class="gallery-card">
+
+        <img
+          src="{% static 'images/'|add:image %}"
+          alt="Street Baik gallery photo"
+          loading="lazy"
+        >
+
+      </figure>
+
+      {% endfor %}
+
+
+      {% for video in gallery.videos %}
+
+      <figure class="gallery-card video-card">
+
+        <video
+          controls
+          preload="metadata"
+          playsinline
+          poster="{% static 'images/photo/about.jpg' %}"
+        >
+
+          <source
+            src="{% static 'images/'|add:video %}"
+            type="video/mp4"
+          >
+
+        </video>
+
+      </figure>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+
+  <!-- BOOKING -->
+
+  <section id="booking" class="section form-section">
+
+    <div class="heading">
+
+      <span class="eyebrow">
+        MAKE IT A PLAN
+      </span>
+
+      <h2>
+        Book a <em>Table</em>
+      </h2>
+
+      <p>
+        Reserve your table before you arrive.
+      </p>
+
+    </div>
+
+
+    <form id="bookingForm" class="form-grid">
+
+      <input
+        name="name"
+        required
+        placeholder="Name"
+      >
+
+      <input
+        name="phone"
+        required
+        inputmode="numeric"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        placeholder="10-digit phone"
+      >
+
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        name="date"
+        type="date"
+        required
+      >
+
+      <input
+        name="time"
+        type="time"
+        required
+      >
+
+      <input
+        name="guests"
+        type="number"
+        min="1"
+        max="20"
+        required
+        placeholder="Guests"
+      >
+
+      <textarea
+        name="request"
+        placeholder="Special request (optional)"
+      ></textarea>
+
+      <button class="btn primary">
+        Request Reservation
+      </button>
+
+      <p
+        class="form-msg"
+        id="bookingMsg"
+      ></p>
+
+    </form>
+
+  </section>
+
+
+  <!-- REVIEWS -->
+
+  <section id="reviews" class="section form-section">
+
+    <div class="heading">
+
+      <span class="eyebrow">
+        YOUR VOICE MATTERS
+      </span>
+
+      <h2>
+        Leave a <em>Review</em>
+      </h2>
+
+    </div>
+
+
+    <form id="reviewForm" class="form-grid">
+
+      <input
+        name="name"
+        required
+        placeholder="Your name"
+      >
+
+      <select name="rating" required>
+
+        <option value="">
+          Rating
+        </option>
+
+        <option value="5">
+          5 stars
+        </option>
+
+        <option value="4">
+          4 stars
+        </option>
+
+        <option value="3">
+          3 stars
+        </option>
+
+        <option value="2">
+          2 stars
+        </option>
+
+        <option value="1">
+          1 star
+        </option>
+
+      </select>
+
+      <textarea
+        name="review"
+        required
+        placeholder="Tell us about your experience"
+      ></textarea>
+
+      <button class="btn primary">
+        Submit Review
+      </button>
+
+      <p
+        class="form-msg"
+        id="reviewMsg"
+      ></p>
+
+    </form>
+
+  </section>
+
+
+  <!-- CONTACT -->
+
+  <section id="contact" class="section contact">
+
+    <div>
+
+      <span class="eyebrow">
+        COME SAY HI
+      </span>
+
+      <h2>
+        Find <em>Street Baik</em>
+      </h2>
+
+      <p>
+        Railway Station Rd, near Aluva Junction,
+        Periyar Nagar, Aluva, Kochi, Kerala 683101
+      </p>
+
+      <p>
+        Dine-in and takeaway available.
+      </p>
+
+      <p>
+
+        <a href="tel:+918129935964">
+          8129935964
+        </a>
+
+        <br>
+
+        <a href="mailto:streetbaikresto@gmail.com">
+          streetbaikresto@gmail.com
+        </a>
+
+      </p>
+
+
+      <div class="actions">
+
+        <a
+          class="btn primary"
+          href="{{ support_whatsapp }}"
+          target="_blank"
+          rel="noopener"
+        >
+          WhatsApp Help
+        </a>
+
+        <a
+          class="btn ghost"
+          href="https://maps.app.goo.gl/4Z3DfaMugVHmci488"
+          target="_blank"
+          rel="noopener"
+        >
+          Open Maps
+        </a>
+
+        <a
+          class="btn ghost"
+          href="https://www.instagram.com/streetbaik"
+          target="_blank"
+          rel="noopener"
+        >
+          Instagram
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="social-card">
+
+      <img
+        src="{% static 'images/instagram-qr.png' %}"
+        alt="Street Baik Instagram QR"
+      >
+
+      <b>@STREETBAIK</b>
+
+      <small>
+        Scan to follow us
+      </small>
+
+    </div>
+
+  </section>
+
+
+  <!-- CONTACT FORM -->
+
+  <section class="section contact-form">
+
+    <div class="heading">
+
+      <span class="eyebrow">
+        NEED HELP?
+      </span>
+
+      <h2>
+        Talk to <em>Us</em>
+      </h2>
+
+    </div>
+
+
+    <form id="contactForm" class="form-grid">
+
+      <input
+        name="name"
+        required
+        placeholder="Your name"
+      >
+
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        name="phone"
+        inputmode="numeric"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        placeholder="Phone"
+      >
+
+      <textarea
+        name="message"
+        required
+        placeholder="How can we help?"
+      ></textarea>
+
+      <button class="btn primary">
+        Send Message
+      </button>
+
+      <p
+        class="form-msg"
+        id="contactMsg"
+      ></p>
+
+    </form>
+
+  </section>
+
 </main>
 
-<footer><div><b>STREET <em>BAIK</em></b><p>Good food. Good mood.</p></div><div><a href="{{ support_whatsapp }}" target="_blank" rel="noopener">WhatsApp</a><a href="https://www.instagram.com/streetbaik">Instagram</a><a href="https://maps.app.goo.gl/4Z3DfaMugVHmci488">Maps</a><a href="{% url 'track' %}">Track Order</a><a href="{% url 'staff' %}">Admin</a></div><p>&copy; 2026 Street Baik Resto Cafe. All Rights Reserved.</p></footer>
 
-<div class="drawer-bg" id="drawerBg"></div><aside class="drawer" id="drawer"><div class="drawer-head"><div><span class="eyebrow">YOUR ORDER</span><h2>Cart</h2></div><button id="cartClose">x</button></div><div id="cartItems"></div><div class="cart-foot"><div><span>Subtotal</span><strong id="cartTotal">Rs 0</strong></div><button id="checkoutOpen" class="btn primary">Checkout</button></div></aside>
-<div class="modal-bg" id="checkoutModal"><div class="modal"><button class="modal-x" id="checkoutClose">x</button><span class="eyebrow">FINAL STEP</span><h2>Complete Your Order</h2><div id="checkoutSummary"></div><form id="checkoutForm" class="form-grid"><input name="name" required placeholder="Full Name"><input name="email" type="email" placeholder="Email"><input name="phone" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit phone"><select name="order_type" id="orderType" required><option value="Delivery">Delivery</option><option value="Takeaway">Takeaway</option><option value="Dine-in">Dine-in</option></select><textarea name="address" id="deliveryAddress" placeholder="Delivery address within {{ delivery_radius_km }} km"></textarea><input name="table_no" id="tableNo" placeholder="Table number (optional)"><input name="instructions" placeholder="Special request (optional)"><select name="payment_method" required><option value="Cash / Pay at Cafe">Cash / Pay at Cafe</option><option value="UPI (Manual at Cafe)">UPI (Manual at Cafe)</option></select><p class="delivery-note">Delivery is available within {{ delivery_radius_km }} km only. This site records the address; exact distance must be confirmed by the cafe unless a maps API is configured later.</p><button class="btn primary">Place Order</button><p class="form-msg" id="checkoutMsg"></p></form></div></div>
-<div class="modal-bg" id="successModal"><div class="success"><div class="check">OK</div><span class="eyebrow">ORDER RECEIVED</span><h2>Thank you!</h2><p id="successText"></p><a id="trackLink" class="btn primary">Track Order</a><a class="btn ghost" href="{{ support_whatsapp }}" target="_blank" rel="noopener">WhatsApp Help</a><button class="btn ghost" id="successClose">Done</button></div></div><a class="floating-whatsapp" href="{{ support_whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp support">WhatsApp</a>
+<!-- CART -->
+
+<footer>
+
+  <div>
+
+    <b>
+      STREET <em>BAIK</em>
+    </b>
+
+    <p>
+      Good food. Good mood.
+    </p>
+
+  </div>
+
+
+  <div>
+
+    <a
+      href="{{ support_whatsapp }}"
+      target="_blank"
+      rel="noopener"
+    >
+      WhatsApp
+    </a>
+
+    <a href="https://www.instagram.com/streetbaik">
+      Instagram
+    </a>
+
+    <a href="https://maps.app.goo.gl/4Z3DfaMugVHmci488">
+      Maps
+    </a>
+
+    <a href="{% url 'track' %}">
+      Track Order
+    </a>
+
+    <a href="{% url 'staff' %}">
+      Admin
+    </a>
+
+  </div>
+
+
+  <p>
+    &copy; 2026 Street Baik Resto Cafe. All Rights Reserved.
+  </p>
+
+</footer>
+
+
+<div
+  class="drawer-bg"
+  id="drawerBg"
+></div>
+
+
+<aside
+  class="drawer"
+  id="drawer"
+>
+
+  <div class="drawer-head">
+
+    <div>
+
+      <span class="eyebrow">
+        YOUR ORDER
+      </span>
+
+      <h2>
+        Cart
+      </h2>
+
+    </div>
+
+    <button id="cartClose">
+      x
+    </button>
+
+  </div>
+
+
+  <div id="cartItems"></div>
+
+
+  <div class="cart-foot">
+
+    <div>
+
+      <span>
+        Subtotal
+      </span>
+
+      <strong id="cartTotal">
+        Rs 0
+      </strong>
+
+    </div>
+
+    <button
+      id="checkoutOpen"
+      class="btn primary"
+    >
+      Checkout
+    </button>
+
+  </div>
+
+</aside>
+
+
+<!-- CHECKOUT -->
+
+<div
+  class="modal-bg"
+  id="checkoutModal"
+>
+
+  <div class="modal">
+
+    <button
+      class="modal-x"
+      id="checkoutClose"
+    >
+      x
+    </button>
+
+    <span class="eyebrow">
+      FINAL STEP
+    </span>
+
+    <h2>
+      Complete Your Order
+    </h2>
+
+
+    <div id="checkoutSummary"></div>
+
+
+    <form
+      id="checkoutForm"
+      class="form-grid"
+    >
+
+      <input
+        name="name"
+        required
+        placeholder="Full Name"
+      >
+
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        name="phone"
+        required
+        inputmode="numeric"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        placeholder="10-digit phone"
+      >
+
+
+      <!-- ONLY TAKEAWAY + DINE-IN -->
+
+      <select
+        name="order_type"
+        id="orderType"
+        required
+      >
+
+        <option value="Takeaway">
+          Takeaway
+        </option>
+
+        <option value="Dine-in">
+          Dine-in
+        </option>
+
+      </select>
+
+
+      <!-- TABLE NUMBER FOR DINE-IN -->
+
+      <input
+        name="table_no"
+        id="tableNo"
+        placeholder="Table number (optional)"
+      >
+
+
+      <input
+        name="instructions"
+        placeholder="Special request (optional)"
+      >
+
+
+      <select
+        name="payment_method"
+        required
+      >
+
+        <option value="Cash / Pay at Cafe">
+          Cash / Pay at Cafe
+        </option>
+
+        <option value="UPI (Manual at Cafe)">
+          UPI (Manual at Cafe)
+        </option>
+
+      </select>
+
+
+      <p class="delivery-note">
+        Dine-in and takeaway orders only.
+      </p>
+
+
+      <button class="btn primary">
+        Place Order
+      </button>
+
+
+      <p
+        class="form-msg"
+        id="checkoutMsg"
+      ></p>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- SUCCESS -->
+
+<div
+  class="modal-bg"
+  id="successModal"
+>
+
+  <div class="success">
+
+    <div class="check">
+      OK
+    </div>
+
+    <span class="eyebrow">
+      ORDER RECEIVED
+    </span>
+
+    <h2>
+      Thank you!
+    </h2>
+
+    <p id="successText"></p>
+
+
+    <a
+      id="trackLink"
+      class="btn primary"
+    >
+      Track Order
+    </a>
+
+
+    <a
+      class="btn ghost"
+      href="{{ support_whatsapp }}"
+      target="_blank"
+      rel="noopener"
+    >
+      WhatsApp Help
+    </a>
+
+
+    <button
+      class="btn ghost"
+      id="successClose"
+    >
+      Done
+    </button>
+
+  </div>
+
+</div>
+
+
+<a
+  class="floating-whatsapp"
+  href="{{ support_whatsapp }}"
+  target="_blank"
+  rel="noopener"
+  aria-label="WhatsApp support"
+>
+  WhatsApp
+</a>
+
+
 <script src="{% static 'js/app.js' %}"></script>
+
 </body>
 </html>
