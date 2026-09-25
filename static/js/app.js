@@ -1,8 +1,26 @@
-const state={items:[],category:'All',cart:JSON.parse(localStorage.getItem('streetbaik_cart')||'{}')};
+const state={items:[],category:'Burgers',cart:JSON.parse(localStorage.getItem('streetbaik_cart')||'{}')};
 const $=s=>document.querySelector(s);
 const $$=s=>document.querySelectorAll(s);
 const money=n=>'Rs '+Number(n).toFixed(0);
 const csrfToken=()=>document.cookie.split('; ').find(v=>v.startsWith('csrftoken='))?.split('=')[1]||'';
+
+function imageUrl(path){
+  const value=String(path||'').trim();
+
+  if(!value){
+    return '';
+  }
+
+  if(value.startsWith('http://') || value.startsWith('https://')){
+    return value;
+  }
+
+  if(value.startsWith('//')){
+    return 'https:'+value;
+  }
+
+  return `/static/images/${value.replace(/^\/+/, '')}`;
+}
 
 async function load(){
   try{
@@ -21,8 +39,18 @@ async function load(){
 
 function renderChips(cats){
   cats=[...cats.filter(c=>c.name!=='All'),...cats.filter(c=>c.name==='All')];
+
   if(!$('#chips')) return;
-  $('#chips').innerHTML=cats.map(c=>`<button class="chip ${state.category===c.name?'active':''}" data-cat="${c.name}">${c.icon||''} ${c.name}</button>`).join('');
+
+  $('#chips').innerHTML=cats.map(c=>`
+    <button
+      class="chip ${state.category===c.name?'active':''}"
+      data-cat="${c.name}"
+    >
+      ${c.icon||''} ${c.name}
+    </button>
+  `).join('');
+
   $$('#chips .chip').forEach(button=>button.onclick=()=>{
     state.category=button.dataset.cat;
     renderChips(cats);
@@ -41,32 +69,53 @@ function renderMenu(){
 
   const sort=$('#sort')?$('#sort').value:'';
 
-  if(sort==='low') items.sort((a,b)=>Number(a.price)-Number(b.price));
-  if(sort==='high') items.sort((a,b)=>Number(b.price)-Number(a.price));
+  if(sort==='low'){
+    items.sort((a,b)=>Number(a.price)-Number(b.price));
+  }
+
+  if(sort==='high'){
+    items.sort((a,b)=>Number(b.price)-Number(a.price));
+  }
 
   if(!$('#menuGrid')) return;
 
   $('#menuGrid').innerHTML=items.map(item=>`
     <article class="food-card">
+
       <div class="food-img">
-        <img src="/static/images/${item.image}" alt="${item.name}" loading="lazy">
+        <img
+          src="${imageUrl(item.image)}"
+          alt="${item.name}"
+          loading="lazy"
+        >
+
         ${item.bestseller?'<span class="badge">BESTSELLER</span>':''}
       </div>
 
       <div class="food-body">
+
         <div class="tags">
           <span>${item.diet==='veg'?'VEG':'NON-VEG'}</span>
           <span>${item.category}</span>
         </div>
 
         <h3>${item.name}</h3>
+
         <p>${item.description||''}</p>
 
         <div class="food-bottom">
           <strong>${money(item.price)}</strong>
-          <button class="add" data-id="${item.id}">Add to Cart</button>
+
+          <button
+            class="add"
+            data-id="${item.id}"
+          >
+            Add to Cart
+          </button>
         </div>
+
       </div>
+
     </article>
   `).join('');
 
@@ -129,23 +178,49 @@ function renderCart(){
 
   $('#cartItems').innerHTML=rows.map(x=>`
     <div class="cart-row">
-      <img src="/static/images/${x.item.image}" alt="${x.item.name}">
+
+      <img
+        src="${imageUrl(x.item.image)}"
+        alt="${x.item.name}"
+      >
 
       <div>
+
         <b>${x.item.name}</b>
-        <small>${money(x.item.price)} x ${x.q}</small>
+
+        <small>
+          ${money(x.item.price)} x ${x.q}
+        </small>
 
         <div class="qty">
-          <button data-dec="${x.item.id}">-</button>
-          <span>${x.q}</span>
-          <button data-inc="${x.item.id}">+</button>
-          <button class="remove" data-rem="${x.item.id}">
+
+          <button data-dec="${x.item.id}">
+            -
+          </button>
+
+          <span>
+            ${x.q}
+          </span>
+
+          <button data-inc="${x.item.id}">
+            +
+          </button>
+
+          <button
+            class="remove"
+            data-rem="${x.item.id}"
+          >
             Remove
           </button>
+
         </div>
+
       </div>
 
-      <strong>${money(x.item.price*x.q)}</strong>
+      <strong>
+        ${money(x.item.price*x.q)}
+      </strong>
+
     </div>
   `).join('');
 
@@ -272,6 +347,7 @@ if($('#orderType')){
 ---------------------------------- */
 
 if($('#checkoutOpen')){
+
   $('#checkoutOpen').onclick=()=>{
 
     if(!cartRows().length){
@@ -280,11 +356,18 @@ if($('#checkoutOpen')){
     }
 
     if($('#checkoutSummary')){
+
       $('#checkoutSummary').innerHTML=
+
         cartRows().map(x=>`
           <div class="summary-line">
-            <span>${x.item.name} x ${x.q}</span>
-            <b>${money(x.item.price*x.q)}</b>
+            <span>
+              ${x.item.name} x ${x.q}
+            </span>
+
+            <b>
+              ${money(x.item.price*x.q)}
+            </b>
           </div>
         `).join('')+
 
@@ -303,8 +386,10 @@ if($('#checkoutOpen')){
 }
 
 if($('#checkoutClose')){
+
   $('#checkoutClose').onclick=()=>
     $('#checkoutModal').classList.remove('show');
+
 }
 
 
@@ -347,6 +432,7 @@ if($('#checkoutForm')){
     /*
      * Delivery address is no longer used.
      */
+
     data.address='';
 
     data.items=rows.map(x=>({
@@ -363,10 +449,12 @@ if($('#checkoutForm')){
         '/api/orders/',
         {
           method:'POST',
+
           headers:{
             'Content-Type':'application/json',
             'X-CSRFToken':csrfToken()
           },
+
           body:JSON.stringify(data)
         }
       );
@@ -374,9 +462,11 @@ if($('#checkoutForm')){
       const d=await r.json();
 
       if(!r.ok||!d.ok){
+
         $('#checkoutMsg').textContent=
           d.error||
           'Unable to place order. Please try again.';
+
         return;
       }
 
@@ -404,14 +494,18 @@ if($('#checkoutForm')){
 
       $('#checkoutMsg').textContent=
         'Unable to connect to the server. Please try again.';
+
     }
+
   };
 }
 
 
 if($('#successClose')){
+
   $('#successClose').onclick=()=>
     $('#successModal').classList.remove('show');
+
 }
 
 
@@ -422,12 +516,14 @@ if($('#successClose')){
 async function postForm(form,url,msgEl){
 
   const fd=new FormData(form);
+
   const data=Object.fromEntries(fd.entries());
 
   if(
     data.phone &&
     !/^\d{10}$/.test(String(data.phone).trim())
   ){
+
     msgEl.textContent=
       'Phone number must contain exactly 10 digits.';
 
@@ -440,10 +536,12 @@ async function postForm(form,url,msgEl){
       url,
       {
         method:'POST',
+
         headers:{
           'Content-Type':'application/json',
           'X-CSRFToken':csrfToken()
         },
+
         body:JSON.stringify(data)
       }
     );
@@ -468,6 +566,7 @@ async function postForm(form,url,msgEl){
       ok:false,
       error:error.message
     };
+
   }
 }
 
@@ -491,6 +590,7 @@ if($('#bookingForm')){
     if(d.ok){
       e.target.reset();
     }
+
   };
 }
 
@@ -514,6 +614,7 @@ if($('#reviewForm')){
     if(d.ok){
       e.target.reset();
     }
+
   };
 }
 
@@ -537,6 +638,7 @@ if($('#contactForm')){
     if(d.ok){
       e.target.reset();
     }
+
   };
 }
 

@@ -375,8 +375,8 @@
       <figure class="gallery-card">
 
         <img
-          src="{% static 'images/'|add:image %}"
-          alt="Street Baik gallery photo"
+          src="{{ image.url }}"
+          alt="{{ image.title|default:'Street Baik gallery photo' }}"
           loading="lazy"
         >
 
@@ -397,7 +397,7 @@
         >
 
           <source
-            src="{% static 'images/'|add:video %}"
+            src="{{ video.url }}"
             type="video/mp4"
           >
 

@@ -14,8 +14,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
-from .models import MenuItem, Message, NotificationLog, Order, Reservation, Review
-
+from .models import (
+    GalleryItem,
+    MenuItem,
+    Message,
+    NotificationLog,
+    Order,
+    Reservation,
+    Review,
+)
 
 def whatsapp_url(message):
     phone = "".join(ch for ch in settings.CLIENT_WHATSAPP if ch.isdigit())
@@ -45,6 +52,32 @@ def gallery_media():
     }
 
 
+def cloudinary_gallery():
+    photos = []
+    videos = []
+
+    items = GalleryItem.objects.filter(
+        active=True
+    ).order_by(
+        "sort_order",
+        "-created_at",
+    )
+
+    for item in items:
+        if item.media_type == "photo" and item.image_upload:
+            photos.append({
+                "url": item.image_upload.url,
+                "title": item.title or "Street Baik Gallery",
+            })
+        elif item.media_type == "video" and item.video_upload:
+            videos.append({
+                "url": item.video_upload.url,
+                "title": item.title or "Street Baik Video",
+            })
+
+    return {"photos": photos, "videos": videos}
+
+
 def categories():
     names = [
         ("All", "all"),
@@ -61,12 +94,29 @@ def categories():
 
 @ensure_csrf_cookie
 def home(request):
+    cloud_gallery = cloudinary_gallery()
+
+    if cloud_gallery["photos"] or cloud_gallery["videos"]:
+        gallery = cloud_gallery
+    else:
+        static_gallery = gallery_media()
+        gallery = {
+            "photos": [
+                {"url": f"/static/images/{image}", "title": "Street Baik Gallery"}
+                for image in static_gallery["photos"]
+            ],
+            "videos": [
+                {"url": f"/static/images/{video}", "title": "Street Baik Video"}
+                for video in static_gallery["videos"]
+            ],
+        }
+
     return render(
         request,
         "index.html",
         {
             "categories": categories(),
-            "gallery": gallery_media(),
+            "gallery": gallery,
             "support_whatsapp": whatsapp_url(
                 "Hi Street Baik, I need help with my order."
             ),
@@ -171,11 +221,31 @@ def track(request):
 
 
 def api_menu(request):
+    items = []
+
+    for item in MenuItem.objects.filter(active=True):
+        image_url = item.image
+
+        if item.image_upload:
+            image_url = item.image_upload.url
+
+        items.append(
+            {
+                "id": item.id,
+                "category": item.category,
+                "name": item.name,
+                "price": item.price,
+                "image": image_url,
+                "description": item.description,
+                "diet": item.diet,
+                "bestseller": item.bestseller,
+                "active": item.active,
+            }
+        )
+
     return JsonResponse(
         {
-            "items": list(
-                MenuItem.objects.filter(active=True).values()
-            ),
+            "items": items,
             "categories": categories(),
         }
     )
